@@ -1,5 +1,5 @@
 - name: H3C NTP Configuration
-  hosts: box_as
+  hosts: all
   num_processes: 3
   vars:
     host: "{{ host }}"

@@ -31,9 +31,18 @@ def execute_playbook(inventory, playbook):
         hosts = task["hosts"]
         task_vars = task.get("vars", {})
         devices = []
-        for host in inventory[hosts]["hosts"]:
+        if hosts == "all":
+            host_list = [
+                host
+                for group in inventory
+                if group != "_meta"
+                for host in inventory[group].get("hosts", [])
+            ]
+        else:
+            host_list = inventory[hosts]["hosts"]
+        for host in host_list:
             host_vars = inventory["_meta"]["hostvars"][host]
-            if eval(task["tasks"][0]["when"], {}, host_vars):
+            if any(eval(sub_task["when"], {}, host_vars) for sub_task in task["tasks"]):
                 host_vars["host"] = host
                 device = {
                     "device_type": host_vars["vendor"],
@@ -46,15 +55,18 @@ def execute_playbook(inventory, playbook):
                 devices.append(device)
         if devices:
             for sub_task in task["tasks"]:
-                command = {}
-                if "display_commands" in sub_task:
-                    command["display_commands"] = replace_placeholders(
-                        sub_task["display_commands"], host_vars
+                if eval(sub_task["when"], {}, host_vars):
+                    command = {}
+                    if "display_commands" in sub_task:
+                        command["display_commands"] = replace_placeholders(
+                            sub_task["display_commands"], host_vars
+                        )
+                    if "config_commands" in sub_task:
+                        command["config_commands"] = replace_placeholders(
+                            sub_task["config_commands"], host_vars
+                        )
+                    task_results = run_tasks(
+                        devices, command, task.get("num_processes", 4)
                     )
-                if "config_commands" in sub_task:
-                    command["config_commands"] = replace_placeholders(
-                        sub_task["config_commands"], host_vars
-                    )
-                task_results = run_tasks(devices, command, task.get("num_processes", 4))
-                results[f"{task_name} - {sub_task['name']}"] = task_results
+                    results[f"{task_name} - {sub_task['name']}"] = task_results
     return results
