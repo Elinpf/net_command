@@ -1,13 +1,22 @@
 - name: H3C NTP Configuration
   hosts: box_as
-  num_processes: 2
+  num_processes: 3
   vars:
     host: "{{ host }}"
     port: "{{ port }}"
     username: "{{ user }}"
     password: "{{ password }}"
   tasks:
-    - name: Check NTP status on H3C devices
+    - name: Display H3C Commands
       when: vendor == 'hp_comware'
-      commands: 
+      display_commands: 
         - display ntp status
+        - display clock
+
+    - name: H3C Config Commands
+      when: vendor == 'hp_comware'
+      config_commands: 
+        - acl basic 2100
+        - rule 5 permit
+        - quit
+        - save force

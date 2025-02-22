@@ -1,58 +1,53 @@
-
 # Net Command
 
-Net Command 是一个类似 Ansible 的批量 SSH 操作工具，使用 `netmiko` 作为核心库。它支持通过 YAML 配置文件管理设备清单和批量配置文件，并支持多进程执行任务。
+## 简介
+
+Net Command 是一个用于并行执行网络设备命令的工具，支持通过 playbook 文件定义任务。
 
 ## 安装
 
-使用 `poetry` 安装依赖：
-
-```bash
+```sh
 poetry install
 ```
 
 ## 使用方法
 
-### 查看设备清单
+### 运行命令
 
-使用 `--list` 参数查看设备清单的字典输出：
-
-```bash
-netcmd -i inventory.yaml --list
+```sh
+poetry run netcmd -i <inventory_file> <playbook_file>
 ```
 
-### 执行 Playbook
+### 列出清单
 
-指定设备清单和 Playbook 文件来执行任务：
-
-```bash
-netcmd -i inventory.yaml playbook.yaml
+```sh
+poetry run netcmd -i <inventory_file> --list
 ```
 
-## 配置文件格式
+## 配置文件
 
-### 设备清单 (`inventory.yaml`)
+### Inventory 文件
 
-设备清单文件使用 YAML 格式，示例如下：
+Inventory 文件定义了网络设备的分组和变量。示例：
 
 ```yaml
 all:
   vars:
+    user: admin
+    password: admin
     port: 22
-    user: 'admin'
-    password: 'password@123456'
-    vendor: 'hp_comware'
 
 box_as:
   hosts:
-    192.168.56.2:
     192.168.56.3:
+      vendor: hp_comware
     192.168.56.4:
+      vendor: hp_comware
 ```
 
-### Playbook (`playbook.yaml`)
+### Playbook 文件
 
-Playbook 文件使用 YAML 格式，示例如下：
+Playbook 文件定义了要执行的任务。示例：
 
 ```yaml
 - name: H3C NTP Configuration
@@ -64,24 +59,25 @@ Playbook 文件使用 YAML 格式，示例如下：
     username: "{{ user }}"
     password: "{{ password }}"
   tasks:
-    - name: Check NTP status on H3C devices
+    - name: Display H3C Commands
       when: vendor == 'hp_comware'
-      commands: 
+      display_commands: 
         - display ntp status
+        - display clock
+
+    - name: H3C Config Commands
+      when: vendor == 'hp_comware'
+      config_commands: 
+        - acl basic 2100
+        - rule 5 permit
+        - quit
+        - save force
 ```
 
-## 测试
+## 日志
 
-使用 `pytest` 运行测试：
-
-```bash
-pytest
-```
+日志文件保存在 `logs/` 目录下，每个设备对应一个日志文件。
 
 ## 贡献
 
 欢迎提交问题和贡献代码！
-
-## 许可证
-
-本项目使用 MIT 许可证。

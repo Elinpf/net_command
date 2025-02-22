@@ -1,14 +1,15 @@
 def print_output(results):
-    for command, outputs in results.items():
-        if isinstance(outputs[0], list):
-            print("=" * 10 + f" {command} " + "=" * 10)
-            for output_set in outputs:
+    for task_name, outputs in results.items():
+        print("=" * 10 + f" {task_name} " + "=" * 10)
+        for output_set in outputs:
+            if isinstance(output_set, list):
                 for output in output_set:
-                    print(output)
+                    if isinstance(output, str) and "--------------------" in output:
+                        print(output.replace("--------------------", "").strip())
+                    else:
+                        print(output)
                     print("-" * 20)
-        else:
-            print("=" * 10 + f" {command} " + "=" * 10)
-            for output in outputs:
-                print(output)
+            else:
+                print(output_set)
                 print("-" * 20)
     print("=" * 20)

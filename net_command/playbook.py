@@ -45,7 +45,16 @@ def execute_playbook(inventory, playbook):
                 device.update(replace_placeholders(task_vars, host_vars))
                 devices.append(device)
         if devices:
-            command = replace_placeholders(task["tasks"][0]["commands"], host_vars)
-            task_results = run_tasks(devices, command, task.get("num_processes", 4))
-            results[task_name] = task_results
+            for sub_task in task["tasks"]:
+                command = {}
+                if "display_commands" in sub_task:
+                    command["display_commands"] = replace_placeholders(
+                        sub_task["display_commands"], host_vars
+                    )
+                if "config_commands" in sub_task:
+                    command["config_commands"] = replace_placeholders(
+                        sub_task["config_commands"], host_vars
+                    )
+                task_results = run_tasks(devices, command, task.get("num_processes", 4))
+                results[f"{task_name} - {sub_task['name']}"] = task_results
     return results
