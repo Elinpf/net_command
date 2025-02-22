@@ -1,0 +1,13 @@
+- name: H3C NTP Configuration
+  hosts: box_as
+  num_processes: 2
+  vars:
+    host: "{{ host }}"
+    port: "{{ port }}"
+    username: "{{ user }}"
+    password: "{{ password }}"
+  tasks:
+    - name: Check NTP status on H3C devices
+      when: vendor == 'hp_comware'
+      commands: 
+        - display ntp status

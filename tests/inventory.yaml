@@ -1,0 +1,12 @@
+all:
+  vars:
+    port: 22
+    user: 'admin'
+    password: 'password@123456'
+    vendor: 'hp_comware'
+
+box_as:
+  hosts:
+    192.168.56.2:
+    192.168.56.3:
+    192.168.56.4:
