@@ -12,19 +12,26 @@ def execute_task(device_command_pair):
     device["session_log"] = (
         f"logs/{device['host']}_session.log"  # 日志统一放在 logs/ 目录下
     )
-    connection = ConnectHandler(**device)
-    if isinstance(command, dict):
-        output = []
-        if "display_commands" in command:
-            output.extend(
-                [connection.send_command(cmd) for cmd in command["display_commands"]]
-            )
-        if "config_commands" in command:
-            output.append(connection.send_config_set(command["config_commands"]))
-    else:
-        output = connection.send_command(command)
-    connection.disconnect()
-    return output
+    try:
+        connection = ConnectHandler(**device)
+        if isinstance(command, dict):
+            output = []
+            if "display_commands" in command:
+                output.extend(
+                    [
+                        connection.send_command(cmd)
+                        for cmd in command["display_commands"]
+                    ]
+                )
+            if "config_commands" in command:
+                output.append(connection.send_config_set(command["config_commands"]))
+        else:
+            output = connection.send_command(command)
+        connection.disconnect()
+        return output
+    except Exception as e:
+        print(f"Error executing task on device {device['host']}: {e}")
+        return f"Error: {e}"
 
 
 def run_tasks(devices, command, num_processes):
