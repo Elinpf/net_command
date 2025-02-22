@@ -6,9 +6,9 @@ authors = ["Elinpf <365433079@qq.com>"]
 readme = "README.md"
 packages = [{include = "net_command"}]
 
-[[tool.poetry.source]]
-name = "tsinghua"
-url = "https://mirrors.aliyun.com/pypi/simple/"
+# [[tool.poetry.source]]
+# name = "tsinghua"
+# url = "https://mirrors.aliyun.com/pypi/simple/"
 
 
 
