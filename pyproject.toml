@@ -16,6 +16,9 @@ url = "https://mirrors.aliyun.com/pypi/simple/"
 python = "^3.8"
 netmiko = "^4.4.0"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
